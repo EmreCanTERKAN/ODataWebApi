@@ -20,11 +20,15 @@ namespace ODataWebApi.Controllers
             // ODataModelBuilder örneği oluşturuluyor.
             ODataConventionModelBuilder builder = new ();
 
+            //Odata verilerini başlangıç olarak büyük harf vermektedir. O yüzden biz json formata dönüştürmekte sıkıntı yaratacağı için baş harflerini küçük yazmamız gerekmektedir. 
+            builder.EnableLowerCamelCase();
+
             // "categories" adında bir EntitySet tanımlanıyor.
             // Bu EntitySet, "Category" tipindeki varlıkları içerir.
             builder.EntitySet<Category>("categories");
             builder.EntitySet<Product>("products");
             builder.EntitySet<ProductDto>("products-dto");
+            builder.EntitySet<UserDto>("users");
 
 
             // Oluşturulan model, IEdmModel olarak döndürülüyor.
@@ -63,6 +67,28 @@ namespace ODataWebApi.Controllers
             }).AsQueryable();
             return products;
         }
+
+        #region Users
+        [HttpGet("users")]
+        [EnableQuery]
+        public IActionResult User()
+        {
+            var users = dbContext.Users
+                .Select(s => new UserDto
+                {
+                    FirstName = s.FirstName,
+                    LastName = s.LastName,
+                    FullName = s.FullName,
+                    Adress = s.Adress,
+                    Id = s.Id,
+                    UserType = s.UserType,
+                    UserTypeName = s.UserType.Name,
+                    UserTypeValue = s.UserType.Value
+                })
+                .AsQueryable();
+            return Ok(users);
+        }
+        #endregion
 
     }
 }

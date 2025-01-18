@@ -70,6 +70,35 @@ app.MapGet("seed-data/products", async (AppDbContext dbContext) =>
     return Results.NoContent();
 }).Produces(204).WithTags("SeedProducts");
 
+app.MapGet("seed-data/users", async (AppDbContext dbContext) =>
+{
+    List<User> users = new();
+    for (int i = 0; i < 10000; i++)
+    {
+        Faker faker = new();
+
+        Random random = new();
+        var typeValue = random.Next(0, 2);
+        var userType = UserType.FromValue(typeValue);
+
+        User user = new()
+        {
+            FirstName = faker.Person.FirstName,
+            LastName = faker.Person.LastName,
+            UserType = userType,
+            Adress = new(faker.Address.City(), faker.Address.State(), faker.Address.FullAddress())
+        };
+
+        users.Add(user);
+    }
+
+    dbContext.AddRange(users);
+
+    await dbContext.SaveChangesAsync();
+
+    return Results.NoContent();
+});
+
 
 app.MapControllers();
 
